@@ -25,8 +25,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # 7. 暴露端口 (FastAPI 默认 8000)
-EXPOSE 8000
+EXPOSE 10000
 
-# 8. 启动命令
-# 启动 uvicorn 服务
-CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# 8. 启动命令 (使用 shell 格式，以便读取变量)
+# 如果有 $PORT 就用 $PORT，否则用 8000
+CMD uvicorn src.api.main:app --host 0.0.0.0 --port ${PORT:-8000}

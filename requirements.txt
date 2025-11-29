@@ -9,3 +9,5 @@ webdriver-manager
 beautifulsoup4
 streamlit
 plotly
+uvicorn
+fastapi
