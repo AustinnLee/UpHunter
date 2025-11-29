@@ -13,6 +13,8 @@ class Config:
     DB_PORT = os.getenv("DB_PORT", "5432")
     DB_NAME = os.getenv("DB_NAME", "uphunter_db")
 
+
+    SENTRY_DSN = os.getenv("SENTRY_DSN")
     # ...
     # 优先读取完整的 URL (Render 会提供这个)
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")

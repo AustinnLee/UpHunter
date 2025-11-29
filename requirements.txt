@@ -11,3 +11,4 @@ streamlit
 plotly
 uvicorn
 fastapi
+sentry-sdk[fastapi]

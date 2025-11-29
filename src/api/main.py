@@ -1,5 +1,16 @@
 from fastapi import FastAPI
 from src.api import routes
+import sentry_sdk
+from src.config import Config
+
+# 1. 初始化 Sentry (在 FastAPI App 创建之前)
+if Config.SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=Config.SENTRY_DSN,
+        # 设置捕获率 1.0 = 100% 的错误都抓
+        traces_sample_rate=1.0,
+        profiles_sample_rate=1.0,
+    )
 
 # 初始化 App
 app = FastAPI(

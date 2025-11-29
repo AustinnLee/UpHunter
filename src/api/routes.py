@@ -8,6 +8,10 @@ from src.api.auth import verify_api_key
 # 全局鉴权
 router = APIRouter(dependencies=[Depends(verify_api_key)])
 
+@router.get("/error-test")
+def trigger_error():
+    """测试 Sentry 报警"""
+    division_by_zero = 1 / 0
 
 @router.get("/jobs", tags=["Jobs"])
 def get_jobs(
