@@ -14,7 +14,8 @@ class Config:
     DB_NAME = os.getenv("DB_NAME", "uphunter_db")
 
 
-    SENTRY_DSN = os.getenv("SENTRY_DSN")
+    #SENTRY_DSN = os.getenv("SENTRY_DSN")
+    SENTRY_DSN = "https://956951d1295123307ddddeaa185c8355@o4510447033843712.ingest.us.sentry.io/4510447065890816"
     # ...
     # 优先读取完整的 URL (Render 会提供这个)
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
