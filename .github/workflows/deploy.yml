@@ -1,0 +1,44 @@
+name: CI/CD Pipeline
+
+# 触发条件：当 main 分支有 push 时
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # 任务 1: 测试 (Test)
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest
+
+    # 这里我们先只跑一个简单的测试，确保环境没崩
+    # 实际项目中这里会运行 pytest
+    - name: Run simple check
+      run: |
+        python -c "import src.api.main; print('API module loads successfully')"
+
+  # 任务 2: 部署 (Deploy)
+  deploy:
+    needs: test # 只有测试通过了，才执行部署
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' # 只在 main 分支部署
+
+    steps:
+    - name: Trigger Render Deploy
+      # 使用 curl 发送一个 GET 请求给 Render 的钩子
+      run: |
+        curl "${{ secrets.RENDER_DEPLOY_HOOK }}"
