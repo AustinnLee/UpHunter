@@ -9,7 +9,7 @@ from src.api.auth import verify_api_key
 router = APIRouter(dependencies=[Depends(verify_api_key)])
 
 @router.get("/error-test")
-def trigger_error():
+async def trigger_error():
     """测试 Sentry 报警"""
     division_by_zero = 1 / 0
 
