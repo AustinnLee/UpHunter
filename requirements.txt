@@ -1,0 +1,11 @@
+requests
+pandas
+sqlalchemy
+psycopg2-binary
+python-dotenv
+selenium
+undetected-chromedriver
+webdriver-manager
+beautifulsoup4
+streamlit
+plotly
