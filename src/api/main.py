@@ -1,36 +1,40 @@
-from fastapi import FastAPI
-from src.api import routes
 import sentry_sdk
+from fastapi import FastAPI
 from src.config import Config
+from src.api import routes
 
-# 1. 初始化 Sentry (在 FastAPI App 创建之前)
+# 1. Sentry 初始化
 if Config.SENTRY_DSN:
     sentry_sdk.init(
         dsn=Config.SENTRY_DSN,
-        # 设置捕获率 1.0 = 100% 的错误都抓
         traces_sample_rate=1.0,
         profiles_sample_rate=1.0,
     )
+    print("✅ Sentry initialized.")
+else:
+    print("⚠️ Sentry DSN not found.")
 
-# 初始化 App
+# 2. App 初始化
 app = FastAPI(
     title="UpHunter API",
     description="Upwork 职位数据猎手 - 企业级数据接口",
     version="1.0.0"
 )
 
-@app.get("/sentry-debug")
-def trigger_error():
-    return 1 / 0
-# 注册路由 (把具体的接口挂载上来)
+# 3. 挂载受保护的路由 (需要密码的)
 app.include_router(routes.router)
 
-# 根路径
+# 4. 根路径 (公开)
 @app.get("/")
 def root():
-    return {"message": "Welcome to UpHunter API. Visit /docs for documentation."}
+    return {"message": "Welcome to UpHunter API."}
+
+# 5. Sentry 测试接口 (公开，不需要密码)
+@app.get("/sentry-debug")
+def trigger_error():
+    print("💣 正在手动触发 ZeroDivisionError...")
+    return 1 / 0  # 这行必定报错
 
 if __name__ == "__main__":
     import uvicorn
-    # 启动服务器
     uvicorn.run(app, host="0.0.0.0", port=8000)

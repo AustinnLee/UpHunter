@@ -5,14 +5,11 @@ from src.models import UpworkJob
 from typing import List, Optional
 from src.api.auth import verify_api_key
 
-# 全局鉴权
+# 全局鉴权：这个文件里的所有接口，都必须带 API Key
 router = APIRouter(dependencies=[Depends(verify_api_key)])
 
-@router.get("/error-test")
-async def trigger_error():
-    """测试 Sentry 报警"""
-    division_by_zero = 1 / 0
 
+# --- 1. 获取职位列表 ---
 @router.get("/jobs", tags=["Jobs"])
 def get_jobs(
         limit: int = 10,
@@ -27,14 +24,16 @@ def get_jobs(
     if keyword:
         query = query.filter(UpworkJob.search_keyword.ilike(f"%{keyword}%"))
 
+    # 按时间倒序
     jobs = query.order_by(UpworkJob.created_at.desc()).limit(limit).all()
     return jobs
 
 
+# --- 2. 获取统计数据 ---
 @router.get("/stats", tags=["Analytics"])
 def get_stats(db: Session = Depends(get_db)):
     """
-    获取统计数据
+    获取数据库统计概览
     """
     try:
         total = db.query(UpworkJob).count()
@@ -50,20 +49,22 @@ def get_stats(db: Session = Depends(get_db)):
         }
 
 
+# --- 3. 触发爬虫 (后台任务) ---
+
 def run_crawler_task(keyword: str):
     """
-    后台任务逻辑
+    实际执行爬虫的逻辑 (运行在后台线程)
     """
     print(f"🚀 [Background] 收到抓取请求: {keyword}")
 
     try:
-        # 🟢 延迟导入 (Lazy Import) - 关键修复！
-        # 只有在真正执行任务时才加载爬虫模块，避免 API 启动时因缺 Chrome 报错
+        # 延迟导入，防止 Docker 启动时因缺 Chrome 而崩溃
         from src.jobs import scrape_upwork
 
-        # 注意：目前的 scrape_upwork.run() 是跑死数据的
-        # 如果你想让它只跑这个 keyword，你需要去修改 scrape_upwork.run 接受参数
-        # 这里暂时先跑全量
+        # 这里调用爬虫的主入口
+        # 注意：目前的 scrape_upwork.run() 是跑全量关键词的
+        # 如果你想只跑这一个 keyword，你需要去改造 scrape_upwork.py
+        # 暂时先跑默认的全量逻辑
         scrape_upwork.run()
 
     except ImportError as e:
@@ -80,10 +81,11 @@ def trigger_crawl(
     """
     触发爬虫任务 (异步)
     """
+    # 将任务加入后台队列，立即返回响应
     background_tasks.add_task(run_crawler_task, keyword)
 
     return {
-        "message": f"爬虫任务已提交至后台队列: {keyword}",
+        "message": f"爬虫任务已提交至后台队列 (关键词: {keyword})",
         "status": "processing",
         "note": "如果是云端环境且未配置 Chrome，此任务可能会失败，请查看后台日志。"
     }
