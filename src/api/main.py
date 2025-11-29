@@ -19,6 +19,9 @@ app = FastAPI(
     version="1.0.0"
 )
 
+@app.get("/sentry-debug")
+def trigger_error():
+    return 1 / 0
 # 注册路由 (把具体的接口挂载上来)
 app.include_router(routes.router)
 
