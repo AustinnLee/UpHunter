@@ -5,12 +5,15 @@ from src.api import routes
 
 # 1. Sentry 初始化
 if Config.SENTRY_DSN:
+    print(f"🔍 Sentry DSN found: {Config.SENTRY_DSN[:10]}...")  # 打印前10位确认读到了
+
     sentry_sdk.init(
         dsn=Config.SENTRY_DSN,
         traces_sample_rate=1.0,
         profiles_sample_rate=1.0,
+        debug=True  # 🟢 开启调试模式！
     )
-    print("✅ Sentry initialized.")
+    print("✅ Sentry initialized in DEBUG mode.")
 else:
     print("⚠️ Sentry DSN not found.")
 
