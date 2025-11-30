@@ -13,6 +13,7 @@ class Config:
     DB_PORT = os.getenv("DB_PORT", "5432")
     DB_NAME = os.getenv("DB_NAME", "uphunter_db")
 
+    EMBEDDING_MODEL = "BAAI/bge-m3"
 
     #SENTRY_DSN = os.getenv("SENTRY_DSN")
     SENTRY_DSN = "https://956951d1295123307ddddeaa185c8355@o4510447033843712.ingest.us.sentry.io/4510447065890816"

@@ -4,7 +4,9 @@ from src.database import get_db
 from src.models import UpworkJob
 from typing import List, Optional
 from src.api.auth import verify_api_key
-
+from src.core.ai_client import AIClient
+from pydantic import BaseModel
+import json
 # 全局鉴权：这个文件里的所有接口，都必须带 API Key
 router = APIRouter(dependencies=[Depends(verify_api_key)])
 
@@ -89,3 +91,14 @@ def trigger_crawl(
         "status": "processing",
         "note": "如果是云端环境且未配置 Chrome，此任务可能会失败，请查看后台日志。"
     }
+class ChatRequest(BaseModel):
+    message: str
+
+@router.post("/chat", tags=["AI Features"])
+def chat_with_ai(request: ChatRequest):
+    """
+    智能求职顾问 (RAG)
+    """
+    ai = AIClient()
+    response = ai.chat_with_jobs(request.message)
+    return {"reply": response}
